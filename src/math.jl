@@ -1,12 +1,14 @@
+# Binary operators
 for op in (
-    :(Base.:+), :(Base.:-), :(Base.:*), :(Base.:/), :(Base.:\),
-    :(Base.max), :(Base.min),
+    :(Base.:-), :(Base.:/), :(Base.:\), :(Base.:^),
+    :(Base.:(==)), :(Base.isapprox), :(Base.isless),
 )
     @eval @inline $op(x::AbstractPurse, y) = $op(promote(x, y)...)
     @eval @inline $op(x, y::AbstractPurse) = $op(promote(x, y)...)
     @eval @inline $op(x::AbstractPurse, y::AbstractPurse) = $op(promote(x, y)...)
 end
 
+# N-ary operators
 for op in (
     :(Base.:+), :(Base.:*), :(Base.max), :(Base.min),
 )

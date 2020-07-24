@@ -16,6 +16,8 @@ Base.promote_rule(::Type{<:AbstractPurse{T}}, ::Type{S}) where {T,S} = promote_t
 Base.promote_rule(::Type{T}, ::Type{<:AbstractPurse{S}}) where {T,S} = promote_type(T, S)
 Base.promote_rule(::Type{<:AbstractPurse{T}}, ::Type{<:AbstractPurse{S}}) where {T,S} = promote_type(T, S)
 
+cache_signature(::AbstractPurse{<:Any,F}) where {F} = F
+
 """
     Purse{T,F<:Tuple,S<:Tuple}
 
