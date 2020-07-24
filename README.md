@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/dalum/Purses.jl.svg?branch=master)](https://travis-ci.org/dalum/Purses.jl)
 [![codecov](https://codecov.io/gh/dalum/Purses.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/dalum/Purses.jl)
 
-This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the function for caching the entries are saved as a type parameter.  This allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.
+This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the functions used for caching the entries are saved as a type parameter.  This allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.
 
 # Usage
 
