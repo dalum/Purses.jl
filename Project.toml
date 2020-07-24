@@ -2,3 +2,6 @@ name = "Purses"
 uuid = "b933ae29-2b40-4477-9757-bdbbb03ce3a4"
 authors = ["Sakse Dalum <dalum@users.noreply.github.com>"]
 version = "0.1.0"
+
+[compat]
+julia = "1.2"
