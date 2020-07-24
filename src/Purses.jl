@@ -1,7 +1,6 @@
 module Purses
 
-export Purse,
-    cache, value
+export Purse
 
 const _REGISTERED_METHODS = Set()
 

@@ -8,9 +8,9 @@ To cache the result of calling `sum`, `inv∘sum`, and `sqrt∘sum` on a value, 
 ```julia
 julia> using Purses
 
-julia> val = rand(10000);
+julia> value = rand(10000);
 
-julia> purse = Purse(val, sum, inv∘sum, sqrt∘sum);
+julia> purse = Purse(value, sum, inv∘sum, sqrt∘sum);
 
 ```
 To use the cache result of a function, the function must first be registered:
