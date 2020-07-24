@@ -62,6 +62,11 @@ Purse(value::T, ::F, cache::S) where {T,F<:Tuple,S<:Tuple} = Purse{T,F,S}(value,
 Purse{T}(value, fs...) where {T} = Purse(convert(T, value), fs...)
 Purse{T,F}(value) where {T,F<:Tuple} = Purse{T}(value, map(f -> f.instance, F.parameters)...)
 
+function Purse{T,F,S}(value) where {T,F<:Tuple,S<:Tuple}
+    self = Purse{T}(value, map(f -> f.instance, F.parameters)...)
+    return Purse{T,F,S}(self.value, convert(S, self.cache))
+end
+
 """
     value(x)
 

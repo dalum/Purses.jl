@@ -7,11 +7,6 @@ using Purses
 @testset "Basic functionality" begin
     x = 1.5
     purse = Purse(x)
-    @test convert(typeof(purse), purse) === purse
-    @test convert(Any, purse) === purse
-    @test convert(Purse{Float32}, purse) === Purse(Float32(x))
-    @test convert(Purse{typeof(x),Tuple{typeof(+)}}, purse) === convert(Purse{typeof(x),Tuple{typeof(+)}}, x) === Purse(x, +)
-
     @test Purses.value(purse) === Purses.value(x) === x
     @test Purses.cache(purse) === Purses.cache(x) === ()
     @test Purses.cache_signature(purse) === Tuple{}
@@ -32,6 +27,23 @@ using Purses
     @test Purses.value(purse) == x
     @test sqrt(purse) != sqrt(x)
     @test sqrt(purse) == y
+end
+
+@testset "Conversion" begin
+    x = 1.5
+    y = 1.0
+    purse = Purse(x)
+    @test convert(typeof(purse), purse) === purse
+    @test convert(Any, purse) === purse
+    @test convert(Purse{Float32}, purse) === Purse(Float32(x))
+    @test convert(Purse{typeof(x),Tuple{typeof(+)}}, purse) === convert(Purse{typeof(x),Tuple{typeof(+)}}, x) === Purse(x, +)
+
+    @test Purse{Float64,Tuple{typeof(-)},Tuple{Float64}}(x) === Purse(x, -)
+    @test_throws InexactError Purse{Float64,Tuple{typeof(-)},Tuple{Int64}}(x)
+    @test Purses.cache(Purse{Float64,Tuple{typeof(-)},Tuple{Int64}}(y), 1) isa Int64
+
+    purses = Purse{Float64,Tuple{typeof(-)},Tuple{Float64}}[1.0, 2.0, 8.5]
+    @test purses == map(x -> Purse(x, -), [1.0, 2.0, 8.5])
 end
 
 @testset "Function registration" begin
