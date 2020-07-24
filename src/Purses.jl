@@ -106,6 +106,7 @@ function _register(f)
 end
 
 function _register_impl(::T) where {T}
+    Base.issingletontype(T) || error("cannot register method for non-singleton type: $T")
     T in _REGISTERED_FUNCTIONS && return Expr(:block)
     push!(_REGISTERED_FUNCTIONS, T)
     return quote
@@ -123,11 +124,6 @@ function _register_impl(::T) where {T}
             end
         end
     end
-end
-
-# Guard against nonsensical registrations.
-function _register_impl(::T) where {T<:Union{Type,DataType,UnionAll}}
-    return error("cannot register method for $T")
 end
 
 end # module
