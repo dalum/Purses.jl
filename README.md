@@ -13,11 +13,6 @@ julia> value = rand(10000);
 julia> purse = Purse(value, sum, inv∘sum, sqrt∘sum);
 
 ```
-To be able to use the cached result of a function, the function must first be registered:
-```julia
-julia> Purses.register(sum, inv∘sum, sqrt∘sum);
-
-```
 This will define methods for `sum`, `inv∘sum`, and `sqrt∘sum` for `AbstractPurse` types.  If the purse has a cached valued of one of the registered functions, it will retrieve the cached value instead of computing it.  The effect of this kind of caching can be quite significant, if the cached value is expensive to compute:
 ```julia
 julia> using BenchmarkTools
@@ -45,4 +40,20 @@ julia> @btime (sqrt∘sum)($(Ref(value))[])
 julia> @btime (sqrt∘sum)($(Ref(purse))[])
   1.250 ns (0 allocations: 0 bytes)
 71.19071328707443
+```
+
+# Registering functions
+
+To be able to use the cached result of a function, the function must first be registered.  In the example above, `sum`, `inv∘sum`, and `sqrt∘sum` were already registered.  However, if we want to cache the result of a custom function, `Purses` provides a `register!` function, which automatically generates an optimized cache retrieval method for `AbstractPurse`.
+```julia
+julia> my_inc(x) = x + 1
+
+julia> Purses.register!(my_inc)
+(my_inc,)
+
+julia> purse = Purse(1.0, my_inc)
+Purse{Float64,Tuple{typeof(my_inc)},Tuple{Float64}}(1.0, (2.0,))
+
+julia> my_inc(purse)
+2.0
 ```
