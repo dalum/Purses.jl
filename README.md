@@ -1,4 +1,4 @@
-# Purses.jl
+# Purses.jl 👛
 
 This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the function for caching the entries are saved as a type parameter.  This trick allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.
 
