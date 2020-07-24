@@ -12,10 +12,6 @@ Base.convert(::Type{Any}, x::T) where {T<:AbstractPurse} = x
 Base.convert(::Type{T}, x::T) where {T<:AbstractPurse} = x
 Base.convert(::Type{T}, x::AbstractPurse) where {T} = convert(T, value(x))
 
-Base.promote_rule(::Type{<:AbstractPurse{T}}, ::Type{S}) where {T,S} = promote_type(T, S)
-Base.promote_rule(::Type{T}, ::Type{<:AbstractPurse{S}}) where {T,S} = promote_type(T, S)
-Base.promote_rule(::Type{<:AbstractPurse{T}}, ::Type{<:AbstractPurse{S}}) where {T,S} = promote_type(T, S)
-
 cache_signature(::AbstractPurse{<:Any,F}) where {F} = F
 
 """

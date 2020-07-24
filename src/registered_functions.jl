@@ -25,6 +25,11 @@ register!(
     inv ∘ cbrt,
     inv ∘ exp,
     inv ∘ log,
+    # Trigonomotry
+    cos, sin, tan, cot, sec, csc,
+    cosh, sinh, tanh, coth, sech, csch,
+    acos, asin, atan, acot, asec, acsc,
+    acosh, asinh, atanh, acoth, asech, acsch,
     # Iterator operations
     sum,
     prod,

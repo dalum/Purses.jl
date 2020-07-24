@@ -69,6 +69,9 @@ end
     @test min(purse, y, z) == z == min(x, y, z)
     @test max(purse, z) == purse == x == max(x, z)
     @test max(purse, y, z) == y == max(x, y, z)
+
+    @test purse + purse == x + x == 2*purse == 2*x
+    @test purse + purse + purse == x + x + x == 3*purse == 3*x
 end
 
 end # module
