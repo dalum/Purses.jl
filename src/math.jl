@@ -1,6 +1,6 @@
 # Binary operators
 for op in (
-    :(Base.:+), :(Base.:*), :(Base.:-), :(Base.:/), :(Base.:\ ), :(Base.:^),
+    :(Base.:+), :(Base.:*), :(Base.:-), :(Base.:/), :(Base.:\), :(Base.:^),
     :(Base.:(==)), :(Base.isapprox), :(Base.isless),
     :(Base.max), :(Base.min),
 )
