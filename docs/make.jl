@@ -7,7 +7,8 @@ makedocs(
     sitename = "Purses.jl 👛",
     modules = [Purses],
     pages = [
-        "index.md",
+        "Index" => "index.md",
+        "introduction.md",
         "api.md",
     ],
 )
