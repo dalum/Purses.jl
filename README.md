@@ -15,34 +15,34 @@ julia> purse = Purse(value, sum, inv∘sum, sqrt∘sum);
 ```
 To be able to use the cached result of a function, the function must first be registered:
 ```julia
-julia> Purses.register(sum, inv∘sum, sqrt∘sum; max_cache=3);
+julia> Purses.register(sum, inv∘sum, sqrt∘sum);
 
 ```
-This will define methods for `sum`, `inv∘sum`, and `sqrt∘sum` for all permutations of caches with up to 3 cached items.  The effect of this kind of caching can be quite significant, if the cached value is expensive to compute:
+This will define methods for `sum`, `inv∘sum`, and `sqrt∘sum` for `AbstractPurse` types.  If the purse has a cached valued of one of the registered functions, it will retrieve the cached value instead of computing it.  The effect of this kind of caching can be quite significant, if the cached value is expensive to compute:
 ```julia
 julia> using BenchmarkTools
 
-julia> @btime sum($(Ref(val))[])
-  913.351 ns (0 allocations: 0 bytes)
-5006.181801631625
+julia> @btime sum($(Ref(value))[])
+  901.703 ns (0 allocations: 0 bytes)
+5068.117658322436
 
 julia> @btime sum($(Ref(purse))[])
-  1.240 ns (0 allocations: 0 bytes)
-5006.181801631625
+  1.248 ns (0 allocations: 0 bytes)
+5068.117658322436
 
-julia> @btime (inv∘sum)($(Ref(val))[])
-  914.000 ns (0 allocations: 0 bytes)
-0.00019975303327459624
+julia> @btime (inv∘sum)($(Ref(value))[])
+  905.658 ns (0 allocations: 0 bytes)
+0.00019731191487985371
 
 julia> @btime (inv∘sum)($(Ref(purse))[])
-  1.239 ns (0 allocations: 0 bytes)
-0.00019975303327459624
+  1.248 ns (0 allocations: 0 bytes)
+0.00019731191487985371
 
-julia> @btime (sqrt∘sum)($(Ref(val))[])
-  916.853 ns (0 allocations: 0 bytes)
-70.75437655461056
+julia> @btime (sqrt∘sum)($(Ref(value))[])
+  905.684 ns (0 allocations: 0 bytes)
+71.19071328707443
 
 julia> @btime (sqrt∘sum)($(Ref(purse))[])
-  1.241 ns (0 allocations: 0 bytes)
-70.75437655461056
+  1.250 ns (0 allocations: 0 bytes)
+71.19071328707443
 ```

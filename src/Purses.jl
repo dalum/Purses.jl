@@ -2,7 +2,7 @@ module Purses
 
 export Purse
 
-const _REGISTERED_METHODS = Set()
+const _REGISTERED_FUNCTIONS = Set()
 
 """
     AbstractPurse{F<:Tuple}
@@ -41,6 +41,7 @@ function Purse(value, fs...)
     cache = map(f -> f isa Pair ? last(f) : f(value), fs)
     return Purse(value, Fs, cache)
 end
+
 Purse(value::T, ::F, cache::S) where {T,F<:Tuple,S<:Tuple} = Purse{T,F,S}(value, cache)
 
 """
@@ -50,7 +51,7 @@ If `x` is a `Purse`, return its value field, otherwise return x itself.
 
 # Examples
 ```jldoctest
-julia> value(Purse(2.0))
+julia> Purses.value(Purse(2.0))
 2.0
 ```
 """
@@ -67,7 +68,7 @@ optional argument `i` is supplied, return the `i`th stored cache item.
 ```jldoctest
 julia> purse = Purse(1.0, -);
 
-julia> cache(purse, 1)
+julia> Purses.cache(purse, 1)
 -1.0
 ```
 """
@@ -77,16 +78,16 @@ julia> cache(purse, 1)
 @inline cache(x::Purse, i) = last(x.cache[i])
 
 """
-    register(fs...; max_cache=length(fs))
+    register(fs...)
 
-Register each `f` in `fs` as cacheable and return `fs`.  This works by defining methods of
-the type `f(x::Purse{...})` for all `f` in `fs`, and with all permutations of the cache type
-parameter, `typeof(f)`, for cache sizes up to `max_cache`.
+Register each `f` in `fs` as cacheable and return `fs`.
 
 !!! note
-    If `f` is already defined for a given cache size, this method will not redefine it.  It
-    is therefore safe to call this method with the same functions multiple times, without
-    incurring method redefinitions.
+    If `f` is already registered, `register` will not redefine it.  It is therefore safe to
+    call `register` with the same functions multiple times, without the risk of method
+    redefinitions.  However, the methods for `f` are `@generated` functions.  If several
+    different types of purses are used, the method table will grow significantly.  This may
+    incur a significant performance impact on the compiler.
 
 # Examples
 ```jldoctest
@@ -96,38 +97,37 @@ julia> length(purse)
 100
 ```
 """
-register(fs...; max_cache=length(fs)) = map(f -> _register(f, max_cache), fs)
+register(fs...) = map(_register, fs)
 
-function _register(f, max_cache)
-    for cache_size in 1:max_cache
-        expr = _register_impl(f, cache_size)
-        eval(expr)
-    end
+function _register(f)
+    expr = _register_impl(f)
+    eval(expr)
     return f
 end
 
-function _register_impl(f::T, cache_size) where {T}
-    if cache_size == 0
-        T in _REGISTERED_METHODS && return Expr(:block)
-        push!(_REGISTERED_METHODS, T)
-        return :(@inline (f::$T)(x::AbstractPurse) = f(value(x)))
-    end
-
-    defs = Expr(:block)
-    for i in 1:cache_size
-        parameters = let cache_size = cache_size
-            ntuple(cache_size) do j
-                i == j ? T : :(<:Any)
+function _register_impl(::T) where {T}
+    T in _REGISTERED_FUNCTIONS && return Expr(:block)
+    push!(_REGISTERED_FUNCTIONS, T)
+    return quote
+        function (f::$T)(x::AbstractPurse{F}) where {F}
+            if @generated
+                for (idx, t) in enumerate(F.parameters)
+                    t == $T && return :(cache(x, $idx))
+                end
+                return :(f(value(x)))
+            else
+                for (idx, t) in enumerate(F.parameters)
+                    t == $T && return cache(x, idx)
+                end
+                return f(value(x))
             end
         end
-
-        parameters in _REGISTERED_METHODS && continue
-
-        push!(_REGISTERED_METHODS, parameters)
-        C = :(AbstractPurse{<:Tuple{$(parameters...)}})
-        push!(defs.args, :(@inline (::$T)(x::$C) = cache(x, $i)))
     end
-    return defs
+end
+
+# Guard against nonsensical registrations.
+function _register_impl(::T) where {T<:Union{Type,DataType,UnionAll}}
+    return error("cannot register method for $T")
 end
 
 end # module
