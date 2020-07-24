@@ -1,6 +1,6 @@
 # Purses.jl 👛
 
-This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the function for caching the entries are saved as a type parameter.  This trick allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.
+This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the function for caching the entries are saved as a type parameter.  This allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.
 
 # Usage
 
@@ -13,7 +13,7 @@ julia> value = rand(10000);
 julia> purse = Purse(value, sum, inv∘sum, sqrt∘sum);
 
 ```
-To use the cache result of a function, the function must first be registered:
+To be able to use the cached result of a function, the function must first be registered:
 ```julia
 julia> Purses.register(sum, inv∘sum, sqrt∘sum; max_cache=3);
 

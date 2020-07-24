@@ -4,7 +4,16 @@ export Purse
 
 const _REGISTERED_METHODS = Set()
 
-struct Purse{T,F<:Tuple,S<:Tuple}
+"""
+    AbstractPurse{F<:Tuple}
+
+Supertype for purses (or purse-like types) with caches of function types `F`.  To create a
+subtype which conforms to the AbstractPurse interface, [`value`](@ref) and [`cache`](@ref)
+must be implemented.
+"""
+abstract type AbstractPurse{F<:Tuple} end
+
+struct Purse{T,F,S<:Tuple} <: AbstractPurse{F}
     value::T
     cache::S
 end
@@ -101,7 +110,7 @@ function _register_impl(f::T, cache_size) where {T}
     if cache_size == 0
         T in _REGISTERED_METHODS && return Expr(:block)
         push!(_REGISTERED_METHODS, T)
-        return :(@inline (f::$T)(x::Purse) = f(value(x)))
+        return :(@inline (f::$T)(x::AbstractPurse) = f(value(x)))
     end
 
     defs = Expr(:block)
@@ -115,7 +124,7 @@ function _register_impl(f::T, cache_size) where {T}
         parameters in _REGISTERED_METHODS && continue
 
         push!(_REGISTERED_METHODS, parameters)
-        C = :(Purse{<:Any,<:Tuple{$(parameters...)}})
+        C = :(AbstractPurse{<:Tuple{$(parameters...)}})
         push!(defs.args, :(@inline (::$T)(x::$C) = cache(x, $i)))
     end
     return defs
