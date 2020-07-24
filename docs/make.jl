@@ -11,3 +11,7 @@ makedocs(
         "api.md",
     ],
 )
+
+deploydocs(
+    repo = "github.com/dalum/Purses.jl.git",
+)

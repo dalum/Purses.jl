@@ -1,5 +1,6 @@
 # Purses.jl 👛
 
+[![](https://img.shields.io/badge/docs-dev-blue.svg)](https://dalum.github.io/Purses.jl/dev)
 [![Build Status](https://travis-ci.org/dalum/Purses.jl.svg?branch=master)](https://travis-ci.org/dalum/Purses.jl)
 [![codecov](https://codecov.io/gh/dalum/Purses.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/dalum/Purses.jl)
 
@@ -45,7 +46,7 @@ julia> @btime (sqrt∘sum)($(Ref(purse))[])
 71.19071328707443
 ```
 
-# Registering functions
+## Registering functions
 
 To be able to use the cached result of a function, the function must first be registered.  In the example above, `sum`, `inv∘sum`, and `sqrt∘sum` were already registered.  However, if we want to cache the result of a custom function, `Purses` provides a `register!` function, which automatically generates an optimized cache retrieval method for `AbstractPurse`.
 ```julia
