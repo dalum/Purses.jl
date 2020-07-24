@@ -9,6 +9,8 @@ using Purses
     purse = Purse(x)
     @test Purses.value(purse) === Purses.value(x) === x
     @test Purses.cache(purse) === Purses.cache(x) === ()
+    @test_throws BoundsError Purses.cache(purse, 1)
+    @test_throws BoundsError Purses.cache(x, 1)
     @test Purses.cache_signature(purse) === Tuple{}
 
     x = 1.5
@@ -35,6 +37,7 @@ end
     purse = Purse(x)
     @test convert(typeof(purse), purse) === purse
     @test convert(Any, purse) === purse
+    @test convert(Float64, purse) === x
     @test convert(Purse{Float32}, purse) === Purse(Float32(x))
     @test convert(Purse{typeof(x),Tuple{typeof(+)}}, purse) === convert(Purse{typeof(x),Tuple{typeof(+)}}, x) === Purse(x, +)
 

@@ -97,5 +97,5 @@ julia> Purses.cache(purse, 1)
 """
 @inline cache(x) = ()
 @inline cache(x::Purse) = x.cache
-@inline cache(x, idx) = nothing
-@inline cache(x::Purse, idx) = @inbounds x.cache[idx]
+@inline cache(x, idx) = cache(x)[idx]
+@inline cache(x::Purse, idx) = x.cache[idx]
