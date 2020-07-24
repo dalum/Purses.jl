@@ -4,7 +4,6 @@
 Register each `f` in `fs` as cacheable and return `fs`.
 
 !!! note
-
     If `f` is already registered, `register!` will not redefine it.  It is therefore safe to
     call `register!` with the same functions multiple times, without the risk of method
     redefinitions.

@@ -1,10 +1,10 @@
 """
     AbstractPurse{T,F<:Tuple}
 
-Supertype for purses (or purse-like types) wrapping a value of type
-`T` and caching functions of types `F`.  To create a subtype which
-conforms to the AbstractPurse interface, [`value`](@ref) and
-[`cache`](@ref) must be implemented.
+Supertype for purses (or purse-like types) wrapping a value of type `T` and caching
+functions of types `F`.  To create a subtype which conforms to the AbstractPurse interface,
+[`value`](@ref) and [`cache`](@ref) must be implemented.
+
 """
 abstract type AbstractPurse{T,F<:Tuple} end
 
