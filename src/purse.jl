@@ -11,7 +11,10 @@ abstract type AbstractPurse{T,F<:Tuple} end
 Base.convert(::Type{Any}, x::T) where {T<:AbstractPurse} = x
 Base.convert(::Type{T}, x::T) where {T<:AbstractPurse} = x
 Base.convert(::Type{T}, x::AbstractPurse) where {T} = convert(T, value(x))
+Base.convert(::Type{T}, x) where {T<:AbstractPurse} = T(x)
+Base.convert(::Type{T}, x::AbstractPurse) where {T<:AbstractPurse} = T(value(x))
 
+cache_signature(::Type{<:AbstractPurse{<:Any,F}}) where {F} = F
 cache_signature(::AbstractPurse{<:Any,F}) where {F} = F
 
 """
@@ -55,6 +58,9 @@ function Purse(value, fs...)
 end
 
 Purse(value::T, ::F, cache::S) where {T,F<:Tuple,S<:Tuple} = Purse{T,F,S}(value, cache)
+
+Purse{T}(value, fs...) where {T} = Purse(convert(T, value), fs...)
+Purse{T,F}(value) where {T,F<:Tuple} = Purse{T}(value, map(f -> f.instance, F.parameters)...)
 
 """
     value(x)

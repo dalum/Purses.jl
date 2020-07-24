@@ -38,16 +38,16 @@ function _register_impl!(::T; force=false) where {T}
     # for cache retrieval.
     push!(_REGISTERED_FUNCTIONS, T)
     return quote
-        function (f::$T)(x::AbstractPurse{<:Any,F}) where {F}
+        function (f::$T)(x::AbstractPurse)
             if @generated
                 # Find the index of the function we have registered in the cache.
-                for (idx, t) in enumerate(F.parameters)
+                for (idx, t) in enumerate(cache_signature(x).parameters)
                     t == $T && return :(cache(x, $idx))
                 end
                 # The function was not found in the cache, so we compute it instead.
                 return :(f(value(x)))
             else
-                for (idx, t) in enumerate(F.parameters)
+                for (idx, t) in enumerate(cache_signature(x).parameters)
                     t == $T && return cache(x, idx)
                 end
                 return f(value(x))
