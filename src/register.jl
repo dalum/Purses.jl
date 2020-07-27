@@ -1,12 +1,19 @@
 """
     register!(fs...)
 
-Register each `f` in `fs` as cacheable and return `fs`.
+Register each `f` in `fs` as cacheable and return `fs`.  If `f` is already registered,
+`register!` will not redefine it.  It is therefore safe to call `register!` with the same
+functions multiple times, without the risk of method redefinitions.
 
 !!! note
-    If `f` is already registered, `register!` will not redefine it.  It is therefore safe to
-    call `register!` with the same functions multiple times, without the risk of method
-    redefinitions.
+    When a `Purse` is created, it automatically registers all functions used in its cache.
+    Manually calling `register!` should thus not generally be required.
+
+!!! note
+
+    To avoid overhead, implementations of `AbstractPurse` should use `Purses._register!(f)`
+    instead of `register!` to register individual functions.  If a function is already
+    registered, `Purses._register!` will be removed at compile-time.
 
 # Examples
 ```jldoctest
@@ -16,36 +23,40 @@ julia> length(purse)
 100
 ```
 """
-register!(fs...; force=false) = map(f -> _register!(f; force=force), fs)
-
-function _register!(f; force=false)
-    expr = _register_impl!(f; force=force)
-    eval(expr)
-    return f
+function register!(fs...; force=false)
+    if force
+        return map(f -> invoke(_register!, Tuple{Any}, (f,)), fs)
+    else
+        return map(f -> _register!(f), fs)
+    end
 end
 
-function _register_impl!(::T; force=false) where {T}
+function _register!(f::T) where {T}
     # Because we rely on `T` to know which function is in the cache, we cannot allow
     # registering non-singleton types, as we would not be able to know which instance of the
     # function is referred to in the cache, without incurring overhead by checking for
     # instance equality.  This would also require the purse to carry the function instance
     # around with it, which would leave a larger memory footprint.
     Base.issingletontype(T) || error("cannot register method for non-singleton type: $T")
-    # Return an empty code block to be evaluated, if the function is already registered,
-    # unless force is set.
-    T in _REGISTERED_FUNCTIONS && (force || return Expr(:block))
-    # Register the function, and return a code block with an optimized generated function
-    # for cache retrieval.
-    push!(_REGISTERED_FUNCTIONS, T)
-    return quote
+
+    @eval begin
+        # Overload registration of the function `f` to be a no-op.
+        @inline _register!(::$T) = $f
+        # Overload calling `f` with a purse for fast cache retrieval.
         function (f::$T)(x::AbstractPurse)
             if @generated
                 # Find the index of the function we have registered in the cache.
                 for (idx, t) in enumerate(cache_signature(x).parameters)
-                    t == $T && return :(cache(x, $idx))
+                    t == $T && return quote
+                        @_inline_meta
+                        cache(x, $idx)
+                    end
                 end
                 # The function was not found in the cache, so we compute it instead.
-                return :(f(value(x)))
+                return quote
+                    @_inline_meta
+                    f(value(x))
+                end
             else
                 for (idx, t) in enumerate(cache_signature(x).parameters)
                     t == $T && return cache(x, idx)
@@ -54,4 +65,6 @@ function _register_impl!(::T; force=false) where {T}
             end
         end
     end
+
+    return f
 end

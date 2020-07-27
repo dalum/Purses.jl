@@ -52,7 +52,7 @@ Purse{Int64,Tuple{typeof(inv)},Tuple{Float64}}(2, (0.2,))
 ```
 """
 function Purse(value, fs...)
-    Fs = map(f -> f isa Pair ? first(f) : f, fs)
+    Fs = map(f -> _register!(f isa Pair ? first(f) : f), fs)
     cache = map(f -> f isa Pair ? last(f) : f(value), fs)
     return Purse(value, Fs, cache)
 end
@@ -60,10 +60,10 @@ end
 Purse(value::T, ::F, cache::S) where {T,F<:Tuple,S<:Tuple} = Purse{T,F,S}(value, cache)
 
 Purse{T}(value, fs...) where {T} = Purse(convert(T, value), fs...)
-Purse{T,F}(value) where {T,F<:Tuple} = Purse{T}(value, map(f -> f.instance, F.parameters)...)
+Purse{T,F}(value) where {T,F<:Tuple} = Purse{T}(value, map(f -> _register!(f.instance), F.parameters)...)
 
 function Purse{T,F,S}(value) where {T,F<:Tuple,S<:Tuple}
-    self = Purse{T}(value, map(f -> f.instance, F.parameters)...)
+    self = Purse{T}(value, map(f -> _register!(f.instance), F.parameters)...)
     return Purse{T,F,S}(self.value, convert(S, self.cache))
 end
 

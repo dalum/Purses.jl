@@ -1,8 +1,8 @@
 module Purses
 
-export Purse
+using Base: @_inline_meta
 
-const _REGISTERED_FUNCTIONS = Set()
+export Purse
 
 include("purse.jl")
 include("register.jl")
