@@ -45,19 +45,8 @@ julia> @btime (sqrt∘sum)($(Ref(purse))[])
   1.250 ns (0 allocations: 0 bytes)
 71.19071328707443
 ```
+Note, however, in order to take advantage of this, the type of the purse must be inferable at the call site.  In other words, the type of the purse must be known at compile time, otherwise Julia will have to use dynamic dispatch to retrieve the value.  This can often lead to orders of magnitudes in loss of performance.
 
 ## Registering functions
 
-To be able to use the cached result of a function, the function must first be registered.  In the example above, `sum`, `inv∘sum`, and `sqrt∘sum` were already registered.  However, if we want to cache the result of a custom function, `Purses` provides a `register!` function, which automatically generates an optimized cache retrieval method for `AbstractPurse`.
-```julia
-julia> my_inc(x) = x + 1
-
-julia> Purses.register!(my_inc)
-(my_inc,)
-
-julia> purse = Purse(1.0, my_inc)
-Purse{Float64,Tuple{typeof(my_inc)},Tuple{Float64}}(1.0, (2.0,))
-
-julia> my_inc(purse)
-2.0
-```
+To be able to use the cached result of a function, the function must first be registered.  This happens automatically for each of the function parameters passed to a `Purse`, when it is created.  Sometimes, you may have to call a non-generic function on the purse, however.  To avoid type piracy, such an instance should be resolved by letting `Purses.jl` define the method using the `register!` function.  Note, however, that this will define a generic method for `AbstractPurse` which will automatically unwrap the purse into the function, when a cache isn't found.  This may be fixed in future versions.

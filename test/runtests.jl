@@ -53,7 +53,6 @@ end
     my_inc(x) = x + 1
 
     @test Purses.register!(my_inc) == (my_inc,)
-    @test typeof(my_inc) in Purses._REGISTERED_FUNCTIONS
 
     x = 1.5
     purse = Purse(x, my_inc)
