@@ -25,7 +25,7 @@ julia> length(purse)
 """
 function register!(fs...; force=false)
     if force
-        return map(f -> invoke(_register!, Tuple{Any}, (f,)), fs)
+        return map(f -> invoke(_register!, Tuple{Any}, f), fs)
     else
         return map(f -> _register!(f), fs)
     end

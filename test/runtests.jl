@@ -59,6 +59,9 @@ end
     @test Purses.cache_signature(purse) === Tuple{typeof(my_inc)}
     @test my_inc(purse) === my_inc(x)
 
+    @test Purses.register!(my_inc; force=true) == (my_inc,)
+    @test my_inc(purse) === my_inc(x)
+
     x = 1.5
     y = 2.0
     purse = Purse(x, my_inc => y)
