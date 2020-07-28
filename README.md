@@ -17,7 +17,7 @@ julia> value = rand(10000);
 julia> purse = Purse(value, sum, inv∘sum, sqrt∘sum);
 
 ```
-This will define methods for `sum`, `inv∘sum`, and `sqrt∘sum` for `AbstractPurse` types.  If the purse has a cached valued of one of the registered functions, it will retrieve the cached value instead of computing it.  The effect of this kind of caching can be quite significant, if the cached value is expensive to compute:
+This will define methods for `sum`, `inv∘sum`, and `sqrt∘sum` for `AbstractPurse` types.  If the purse has a cached value of one of the registered functions, it will retrieve this result instead of computing it.  The effect of this kind of caching can be quite significant, if the cached value is expensive to compute:
 ```julia
 julia> using BenchmarkTools
 
