@@ -51,6 +51,11 @@ using Purses: Purse, value
         Base.prod,
         Base.length,
         Base.size,
+        Base.iterate,
+        Base.keys,
+        Base.values,
+        Base.pairs,
+        Base.broadcastable,
         Base.maximum,
         Base.minimum,
         # Linear algebra operations
