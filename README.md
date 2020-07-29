@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/dalum/Purses.jl.svg?branch=master)](https://travis-ci.org/dalum/Purses.jl)
 [![codecov](https://codecov.io/gh/dalum/Purses.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/dalum/Purses.jl)
 
-This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the functions used for caching the entries are saved as a type parameter.  This allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.
+This package provides a simple and extensible type for wrapping a value that carries a small cache around with it—a purse.  The cache is stored internally as a tuple, and the functions used for caching the entries are saved as a type parameter.  This allows specialising on the function to retrieve the cached value using compile-time constants for indexing into the cache.  Note that the default implementation, `Purse`, is assumed to be immutable.  Mutations of a wrapped mutable object is explicitly unsupported at this moment.
 
 # Usage
 
@@ -46,7 +46,3 @@ julia> @btime (sqrt∘sum)($(Ref(purse))[])
 71.19071328707443
 ```
 Note, however, in order to take advantage of this, the type of the purse must be inferable at the call site.  In other words, the type of the purse must be known at compile time, otherwise Julia will have to use dynamic dispatch to retrieve the value.  This can often lead to orders of magnitudes in loss of performance.
-
-## Registering functions
-
-To be able to use the cached result of a function, the function must first be registered.  This happens automatically for each of the function parameters passed to a `Purse`, when it is created.  Sometimes, you may have to call a non-generic function on the purse, however.  To avoid type piracy, such an instance should be resolved by letting `Purses.jl` define the method using the `register!` function.  Note, however, that this will define a generic method for `AbstractPurse` which will automatically unwrap the purse into the function, when a cache isn't found.  This may be fixed in future versions.
