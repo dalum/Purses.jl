@@ -8,9 +8,8 @@ using Purses
     x = 1.5
     purse = Purse(x)
     @test Purses.value(purse) === Purses.value(x) === x
-    @test Purses.cache(purse) === Purses.cache(x) === ()
+    @test Purses.cache(purse) === ()
     @test_throws BoundsError Purses.cache(purse, 1)
-    @test_throws BoundsError Purses.cache(x, 1)
     @test Purses.cache_signature(typeof(purse)) === Tuple{}
 
     x = 1.5

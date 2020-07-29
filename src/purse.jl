@@ -90,8 +90,8 @@ julia> Purses.value(Purse(2.0))
 """
     cache(x[, idx])
 
-If `x` is a purse, return its stored cache as a tuple, otherwise return an empty tuple.  If
-the optional argument `idx` is supplied, return the cache item stored at index `idx`.
+Return the cache associated with the purse `x`.  If the optional argument `idx` is supplied,
+return the cache item stored at index `idx`.
 
 # Examples
 ```jldoctest
@@ -101,6 +101,5 @@ julia> Purses.cache(purse, 1)
 -1.0
 ```
 """
-@inline cache(x) = ()
 @inline cache(x::Purse) = x.cache
 @inline cache(x, idx) = cache(x)[idx]

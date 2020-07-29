@@ -82,13 +82,21 @@ end
 end
 
 @testset "Iteration protocol" begin
-    purse = Purse(1:10, sum)
+    purse = Purse(1:5, sum)
     @test map(x -> x^2, purse) == map(x -> x^2, value(purse))
-    begin
-        for idx in eachindex(purse)
-            @test purse[idx] == value(purse)[idx]
-        end
+
+    @test iterate(purse) === (1, 1)
+    @test iterate(purse, 1) === (2, 2)
+    @test iterate(purse, 5) === nothing
+
+    for idx in eachindex(purse)
+        @test purse[idx] == value(purse)[idx]
     end
+
+    for (x1, x2) in zip(purse, value(purse))
+        @test x1 == x2
+    end
+
     collected_purse = Purse(collect(purse), sum)
     @test_throws ErrorException purse[1] = 2
 end
