@@ -1,12 +1,19 @@
 """
+    MetaAbstractPurse{T}
+
+Supertype for abstract purses.  This type should be used when defining fallback methods of
+functions for purses that unwrap the value and does not make use of the cache.
+"""
+abstract type MetaAbstractPurse{T} end
+
+"""
     AbstractPurse{T,F<:Tuple}
 
 Supertype for purses (or purse-like types) wrapping a value of type `T` and caching
 functions of types `F`.  To create a subtype which conforms to the AbstractPurse interface,
 [`value`](@ref) and [`cache`](@ref) must be implemented.
-
 """
-abstract type AbstractPurse{T,F<:Tuple} end
+abstract type AbstractPurse{T,F<:Tuple} <: MetaAbstractPurse{T} end
 
 Base.convert(::Type{Any}, x::T) where {T<:AbstractPurse} = x
 Base.convert(::Type{T}, x::T) where {T<:AbstractPurse} = x
@@ -15,7 +22,6 @@ Base.convert(::Type{T}, x) where {T<:AbstractPurse} = T(x)
 Base.convert(::Type{T}, x::AbstractPurse) where {T<:AbstractPurse} = T(value(x))
 
 cache_signature(::Type{<:AbstractPurse{<:Any,F}}) where {F} = F
-cache_signature(::AbstractPurse{<:Any,F}) where {F} = F
 
 """
     Purse{T,F<:Tuple,S<:Tuple}
@@ -70,7 +76,7 @@ end
 """
     value(x)
 
-If `x` is a `Purse`, return its value field, otherwise return x itself.
+If `x` is a purse, return its stored value, otherwise return x itself.
 
 # Examples
 ```jldoctest
@@ -84,8 +90,8 @@ julia> Purses.value(Purse(2.0))
 """
     cache(x[, idx])
 
-If `x` is a `Purse`, return its cache field, otherwise return an empty tuple.  If the
-optional argument `idx` is supplied, return the cache item stored at index `idx`.
+If `x` is a purse, return its stored cache as a tuple, otherwise return an empty tuple.  If
+the optional argument `idx` is supplied, return the cache item stored at index `idx`.
 
 # Examples
 ```jldoctest
@@ -98,4 +104,3 @@ julia> Purses.cache(purse, 1)
 @inline cache(x) = ()
 @inline cache(x::Purse) = x.cache
 @inline cache(x, idx) = cache(x)[idx]
-@inline cache(x::Purse, idx) = x.cache[idx]

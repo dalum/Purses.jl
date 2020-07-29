@@ -10,10 +10,8 @@ functions multiple times, without the risk of method redefinitions.
     Manually calling `register!` should thus not generally be required.
 
 !!! note
-
     To avoid overhead, implementations of `AbstractPurse` should use `Purses._register!(f)`
-    instead of `register!` to register individual functions.  If a function is already
-    registered, `Purses._register!` will be removed at compile-time.
+    instead of `register!` to register individual functions.
 
 # Examples
 ```jldoctest
@@ -41,27 +39,21 @@ function _register!(f::T) where {T}
 
     @eval begin
         # Overload registration of the function `f` to be a no-op.
-        @inline _register!(::$T) = $f
+        @inline _register!(f::$T) = f
         # Overload calling `f` with a purse for fast cache retrieval.
-        function (f::$T)(x::AbstractPurse)
-            if @generated
-                # Find the index of the function we have registered in the cache.
-                for (idx, t) in enumerate(cache_signature(x).parameters)
-                    t == $T && return quote
-                        @_inline_meta
-                        cache(x, $idx)
-                    end
-                end
-                # The function was not found in the cache, so we compute it instead.
-                return quote
+        @generated function (f::$T)(x::AbstractPurse)
+            # Find the index of the function we have registered in the cache.  Note that
+            # since this is a generated function, `x` here refers to the type of `x`.
+            for (idx, t) in enumerate(cache_signature(x).parameters)
+                t == $T && return quote
                     @_inline_meta
-                    f(value(x))
+                    cache(x, $idx)
                 end
-            else
-                for (idx, t) in enumerate(cache_signature(x).parameters)
-                    t == $T && return cache(x, idx)
-                end
-                return f(value(x))
+            end
+            # The function was not found in the cache, so we compute it instead.
+            return quote
+                @_inline_meta
+                invoke(f, Tuple{MetaAbstractPurse}, x)
             end
         end
     end
