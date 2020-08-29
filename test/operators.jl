@@ -108,4 +108,14 @@ end
     @test_throws ErrorException purse[1] = 2
 end
 
+@testset "Function wrapping" begin
+    sum_purse = Purse(sum)
+    v = [1.0, 4.0, 3.5]
+    @test sum_purse(v) == 8.5
+
+    map_curry(f) = xs -> map(f, xs)
+    sqrt_curry_purse = Purse(sqrt, map_curry)
+    @test map_curry(sqrt_curry_purse)(v) == map(sqrt, v)
+end
+
 end # module
