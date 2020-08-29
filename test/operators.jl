@@ -8,7 +8,9 @@ using Purses: Purse, value
     x = Purse(1.0)
 
     for op in [
-        Base.identity,
+        Base.complex,
+        Base.float,
+        # Elements
         Base.zero,
         Base.one,
         Base.oneunit,
@@ -62,7 +64,7 @@ using Purses: Purse, value
         Base.adjoint,
         Base.transpose,
     ]
-        @test op(x) == op(value(x))
+        @test op(x) === op(value(x))
     end
 end
 

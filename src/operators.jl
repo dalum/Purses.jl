@@ -1,85 +1,78 @@
+@inline (purse::MetaAbstractPurse)(xs...) = value(purse)(xs...)
+
 # Unary operators
 for op in [
-    :(Base.identity),
-    :(Base.zero),
+    :(Base.complex),
+    :(Base.float),
+    # Elements
     :(Base.one),
     :(Base.oneunit),
+    :(Base.zero),
     # Basic math operations
-    :(Base.:+),
-    :(Base.:-),
-    :(Base.inv),
-    :(Base.sqrt),
-    :(Base.cbrt),
-    :(Base.log),
-    :(Base.exp),
-    :(Base.conj),
-    # Trigonomotry
-    :(Base.cos),
-    :(Base.sin),
-    :(Base.tan),
-    :(Base.cot),
-    :(Base.sec),
-    :(Base.csc),
-    :(Base.cosh),
-    :(Base.sinh),
-    :(Base.tanh),
-    :(Base.coth),
-    :(Base.sech),
-    :(Base.csch),
-    :(Base.acos),
-    :(Base.asin),
-    :(Base.atan),
-    :(Base.acot),
-    :(Base.asec),
-    :(Base.acsc),
-    :(Base.acosh),
-    :(Base.asinh),
-    :(Base.atanh),
-    :(Base.acoth),
-    :(Base.asech),
-    :(Base.acsch),
-    # Iterator operations
-    :(Base.sum),
-    :(Base.prod),
-    :(Base.length),
-    :(Base.size),
-    :(Base.iterate),
-    :(Base.keys),
-    :(Base.values),
-    :(Base.pairs),
-    :(Base.broadcastable),
-    :(Base.maximum),
-    :(Base.minimum),
-    # Linear algebra operations
-    :(Base.adjoint),
-    :(Base.transpose),
-]
-    @eval @inline $op(x::MetaAbstractPurse) = $op(value(x))
-end
-
-# Binary operators
-for op in [
-    :(Base.:+),
+    :(Base.:(==)),
     :(Base.:*),
+    :(Base.:+),
     :(Base.:-),
     :(Base.:/),
     :(Base.:\),
     :(Base.:^),
-    :(Base.:(==)),
+    :(Base.cbrt),
+    :(Base.conj),
+    :(Base.exp),
+    :(Base.inv),
     :(Base.isapprox),
     :(Base.isless),
+    :(Base.log),
     :(Base.max),
     :(Base.min),
+    :(Base.sqrt),
+    # Trigonomotry
+    :(Base.acos),
+    :(Base.acosh),
+    :(Base.acot),
+    :(Base.acoth),
+    :(Base.acsc),
+    :(Base.acsch),
+    :(Base.asec),
+    :(Base.asech),
+    :(Base.asin),
+    :(Base.asinh),
+    :(Base.atan),
+    :(Base.atanh),
+    :(Base.cos),
+    :(Base.cosh),
+    :(Base.cot),
+    :(Base.coth),
+    :(Base.csc),
+    :(Base.csch),
+    :(Base.sec),
+    :(Base.sech),
+    :(Base.sin),
+    :(Base.sinh),
+    :(Base.tan),
+    :(Base.tanh),
+    # Iterator operations
+    :(Base.broadcastable),
+    :(Base.firstindex),
+    :(Base.getindex),
+    :(Base.iterate),
+    :(Base.keys),
+    :(Base.lastindex),
+    :(Base.length),
+    :(Base.pairs),
+    :(Base.size),
+    :(Base.values),
+    # Linear algebra operations
+    :(Base.adjoint),
+    :(Base.transpose),
 ]
-    @eval @inline $op(x::MetaAbstractPurse, y) = $op(value(x), y)
-    @eval @inline $op(x, y::MetaAbstractPurse) = $op(x, value(y))
-    @eval @inline $op(x::MetaAbstractPurse, y::MetaAbstractPurse) = $op(value(x), value(y))
+    @eval @inline $op(x::MetaAbstractPurse, ys...) = $op(value(x), map(value, ys)...)
+    @eval @inline $op(x, y::MetaAbstractPurse, zs...) = $op(x, value(y), map(value, zs)...)
+    @eval @inline function $op(x::MetaAbstractPurse, y::MetaAbstractPurse, zs...)
+        return $op(value(x), value(y), map(value, zs)...)
+    end
 end
 
-## Extra iteration and indexing
-
-Base.iterate(x::MetaAbstractPurse, i) = Base.iterate(value(x), i)
-Base.getindex(x::MetaAbstractPurse, inds...) = Base.getindex(value(x), inds...)
 # We specifically do not define behaviour for `Base.setindex!` or other mutating functions,
 # since they may invalidate the cache.
 function Base.setindex!(::MetaAbstractPurse, ::Any, inds...)
